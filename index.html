@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Gridstack CSS -->
+    <link href="https://jsdelivr.net" rel="stylesheet"/>
+    <style>
+        .grid-stack { background: #f0f2f5; min-height: 100vh; }
+        .grid-stack-item-content { 
+            background: white; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 15px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-stack">
+        <!-- Homework Tile (Starts at x=0, y=0, Width=4, Height=4) -->
+        <div class="grid-stack-item" gs-x="0" gs-y="0" gs-w="4" gs-h="4">
+            <div class="grid-stack-item-content">
+                <h3>Homework Tracker</h3>
+                <p>• Math Chapter 5<br>• Biology Lab</p>
+            </div>
+        </div>
+
+        <!-- Music Tile (Starts at x=4, y=0, Width=4, Height=2) -->
+        <div class="grid-stack-item" gs-x="4" gs-y="0" gs-w="4" gs-h="2">
+            <div class="grid-stack-item-content">
+                <h3>Music</h3>
+                <audio controls style="width: 100%;"><source src="music.mp3"></audio>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gridstack JS -->
+    <script src="https://jsdelivr.net"></script>
+    <script>
+        // Initialize the grid
+        var grid = GridStack.init();
+    </script>
+</body>
+</html>
