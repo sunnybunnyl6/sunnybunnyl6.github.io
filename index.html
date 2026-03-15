@@ -1,66 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <title>My Personal Study Hub</title>
     <link href="https://jsdelivr.net" rel="stylesheet"/>
     <link rel="stylesheet" href="style.css">
-    <title>My Interactive Study Hub</title>
     <style>
-        .controls { background: #333; color: white; padding: 10px; position: sticky; top: 0; z-index: 1000; display: flex; gap: 10px; }
-        .btn { background: #4facfe; border: none; color: white; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
-        .btn-danger { background: #ff4b2b; }
+        /* Sidebar Menu for Customizing */
+        .menu-bar { 
+            background: #2c3e50; padding: 15px; display: flex; gap: 15px; 
+            position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .btn { 
+            background: #3498db; border: none; color: white; padding: 10px 20px; 
+            border-radius: 6px; cursor: pointer; font-weight: bold;
+        }
+        .btn:hover { background: #2980b9; }
+        .btn-reset { background: #e74c3c; }
+        
+        /* Edit Mode Styling */
+        [contenteditable="true"]:focus { outline: 2px dashed #3498db; padding: 5px; border-radius: 4px; }
+        .grid-stack-item-content { cursor: default; }
     </style>
 </head>
 <body>
-    <!-- 1. Control Panel for the User -->
-    <div class="controls">
-        <button class="btn" onclick="addNewTile()">+ Add Task Tile</button>
-        <button class="btn" onclick="saveFullLayout()">Save Layout</button>
-        <button class="btn btn-danger" onclick="clearLayout()">Reset All</button>
+
+    <div class="menu-bar">
+        <button class="btn" onclick="addNoteTile()">+ New Note</button>
+        <button class="btn" onclick="addMusicTile()">+ Add Music</button>
+        <button class="btn btn-reset" onclick="resetDashboard()">Reset Dashboard</button>
     </div>
 
     <div class="grid-stack"></div>
 
     <script src="https://jsdelivr.net"></script>
     <script>
-        // Initialize GridStack with drag-and-drop enabled
-        let grid = GridStack.init({ float: true, margin: 10 });
+        // 1. Initialize Grid
+        let grid = GridStack.init({ float: true, margin: 10, cellHeight: 80 });
 
-        // 2. Add New Tile Function
-        function addNewTile() {
-            grid.addWidget({w: 3, h: 2, content: `
+        // 2. Tile Creator Functions
+        function addNoteTile() {
+            grid.addWidget({ w: 4, h: 3, content: `
                 <div class="grid-stack-item-content">
-                    <h3 contenteditable="true">New Task</h3>
-                    <p contenteditable="true">Click here to edit your notes.</p>
-                </div>`
+                    <h3 contenteditable="true">Homework Task</h3>
+                    <p contenteditable="true">Click here to type your assignment...</p>
+                </div>` 
             });
         }
 
-        // 3. Persistent Storage Logic
-        function saveFullLayout() {
-            let data = grid.save();
-            localStorage.setItem('user-study-grid', JSON.stringify(data));
-            alert("Layout Saved Locally!");
+        function addMusicTile() {
+            grid.addWidget({ w: 4, h: 2, content: `
+                <div class="grid-stack-item-content">
+                    <h3>Music Player</h3>
+                    <input type="text" placeholder="Paste Audio URL here..." style="width:90%; margin-bottom:10px;">
+                    <audio controls style="width:100%"><source src=""></audio>
+                </div>` 
+            });
         }
 
-        function loadSavedLayout() {
-            let saved = localStorage.getItem('user-study-grid');
+        // 3. Save & Load (No Code Editing Needed)
+        function saveLayout() {
+            const data = grid.save(false);
+            localStorage.setItem('my-study-layout', JSON.stringify(data));
+        }
+
+        function loadLayout() {
+            const saved = localStorage.getItem('my-study-layout');
             if (saved) {
                 grid.load(JSON.parse(saved));
             } else {
-                // Default tiles if nothing is saved
-                addNewTile();
+                addNoteTile(); // Start with one default tile
             }
         }
 
-        function clearLayout() {
-            localStorage.removeItem('user-study-grid');
-            location.reload();
+        function resetDashboard() {
+            if(confirm("Delete everything?")) {
+                localStorage.removeItem('my-study-layout');
+                location.reload();
+            }
         }
 
-        // Initialize on load
-        loadSavedLayout();
-        grid.on('change', saveFullLayout); // Auto-save on every move
+        // Auto-save whenever user moves or resizes something
+        grid.on('change', saveLayout);
+        window.onload = loadLayout;
     </script>
 </body>
 </html>
-
