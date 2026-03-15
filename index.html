@@ -1,43 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Gridstack CSS -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Personal Study Hub</title>
+    <!-- Gridstack Core CSS -->
     <link href="https://jsdelivr.net" rel="stylesheet"/>
     <style>
-        .grid-stack { background: #f0f2f5; min-height: 100vh; }
+        body { background: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; }
+        .grid-stack { background: transparent; }
         .grid-stack-item-content { 
-            background: white; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            padding: 15px;
-            overflow: hidden;
+            background: white; border-radius: 12px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
+            padding: 15px; display: flex; flex-direction: column;
         }
+        h3 { margin-top: 0; color: #333; font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+        .audio-container { margin-top: auto; padding-top: 10px; }
+        .task-list { list-style: none; padding: 0; }
+        .task-list li { padding: 5px 0; border-bottom: 1px solid #fafafa; }
     </style>
 </head>
 <body>
+
     <div class="grid-stack">
-        <!-- Homework Tile (Starts at x=0, y=0, Width=4, Height=4) -->
-        <div class="grid-stack-item" gs-x="0" gs-y="0" gs-w="4" gs-h="4">
+        <!-- Homework Tile (ID: 1) -->
+        <div class="grid-stack-item" gs-id="homework" gs-x="0" gs-y="0" gs-w="4" gs-h="4">
             <div class="grid-stack-item-content">
                 <h3>Homework Tracker</h3>
-                <p>• Math Chapter 5<br>• Biology Lab</p>
+                <ul class="task-list">
+                    <li><input type="checkbox"> Math Assignment</li>
+                    <li><input type="checkbox"> History Essay</li>
+                </ul>
             </div>
         </div>
 
-        <!-- Music Tile (Starts at x=4, y=0, Width=4, Height=2) -->
-        <div class="grid-stack-item" gs-x="4" gs-y="0" gs-w="4" gs-h="2">
+        <!-- Music Tile (ID: 2) -->
+        <div class="grid-stack-item" gs-id="music" gs-x="4" gs-y="0" gs-w="4" gs-h="2">
             <div class="grid-stack-item-content">
-                <h3>Music</h3>
-                <audio controls style="width: 100%;"><source src="music.mp3"></audio>
+                <h3>Music Player</h3>
+                <div class="audio-container">
+                    <audio controls style="width: 100%;"><source src="music.mp3"></audio>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Gridstack JS -->
+    <!-- Scripts -->
     <script src="https://jsdelivr.net"></script>
     <script>
-        // Initialize the grid
-        var grid = GridStack.init();
+        // 1. Initialize GridStack
+        let grid = GridStack.init({
+            float: true,
+            cellHeight: '100px',
+            margin: 10
+        });
+
+        // 2. Function to Save Layout to LocalStorage
+        function saveLayout() {
+            let data = grid.save(false); // Saves x, y, width, height for each tile
+            localStorage.setItem('study-hub-layout', JSON.stringify(data));
+        }
+
+        // 3. Function to Load Layout
+        function loadLayout() {
+            let savedData = localStorage.getItem('study-hub-layout');
+            if (savedData) {
+                grid.load(JSON.parse(savedData));
+            }
+        }
+
+        // 4. Run Load on startup and Save whenever anything changes
+        loadLayout();
+        grid.on('change', saveLayout);
     </script>
 </body>
 </html>
