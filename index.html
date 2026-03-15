@@ -1,77 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Personal Study Hub</title>
-    <!-- Gridstack Core CSS -->
     <link href="https://jsdelivr.net" rel="stylesheet"/>
+    <link rel="stylesheet" href="style.css">
+    <title>My Interactive Study Hub</title>
     <style>
-        body { background: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; }
-        .grid-stack { background: transparent; }
-        .grid-stack-item-content { 
-            background: white; border-radius: 12px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
-            padding: 15px; display: flex; flex-direction: column;
-        }
-        h3 { margin-top: 0; color: #333; font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 8px; }
-        .audio-container { margin-top: auto; padding-top: 10px; }
-        .task-list { list-style: none; padding: 0; }
-        .task-list li { padding: 5px 0; border-bottom: 1px solid #fafafa; }
+        .controls { background: #333; color: white; padding: 10px; position: sticky; top: 0; z-index: 1000; display: flex; gap: 10px; }
+        .btn { background: #4facfe; border: none; color: white; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+        .btn-danger { background: #ff4b2b; }
     </style>
 </head>
 <body>
-
-    <div class="grid-stack">
-        <!-- Homework Tile (ID: 1) -->
-        <div class="grid-stack-item" gs-id="homework" gs-x="0" gs-y="0" gs-w="4" gs-h="4">
-            <div class="grid-stack-item-content">
-                <h3>Homework Tracker</h3>
-                <ul class="task-list">
-                    <li><input type="checkbox"> Math Assignment</li>
-                    <li><input type="checkbox"> History Essay</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Music Tile (ID: 2) -->
-        <div class="grid-stack-item" gs-id="music" gs-x="4" gs-y="0" gs-w="4" gs-h="2">
-            <div class="grid-stack-item-content">
-                <h3>Music Player</h3>
-                <div class="audio-container">
-                    <audio controls style="width: 100%;"><source src="music.mp3"></audio>
-                </div>
-            </div>
-        </div>
+    <!-- 1. Control Panel for the User -->
+    <div class="controls">
+        <button class="btn" onclick="addNewTile()">+ Add Task Tile</button>
+        <button class="btn" onclick="saveFullLayout()">Save Layout</button>
+        <button class="btn btn-danger" onclick="clearLayout()">Reset All</button>
     </div>
 
-    <!-- Scripts -->
+    <div class="grid-stack"></div>
+
     <script src="https://jsdelivr.net"></script>
     <script>
-        // 1. Initialize GridStack
-        let grid = GridStack.init({
-            float: true,
-            cellHeight: '100px',
-            margin: 10
-        });
+        // Initialize GridStack with drag-and-drop enabled
+        let grid = GridStack.init({ float: true, margin: 10 });
 
-        // 2. Function to Save Layout to LocalStorage
-        function saveLayout() {
-            let data = grid.save(false); // Saves x, y, width, height for each tile
-            localStorage.setItem('study-hub-layout', JSON.stringify(data));
+        // 2. Add New Tile Function
+        function addNewTile() {
+            grid.addWidget({w: 3, h: 2, content: `
+                <div class="grid-stack-item-content">
+                    <h3 contenteditable="true">New Task</h3>
+                    <p contenteditable="true">Click here to edit your notes.</p>
+                </div>`
+            });
         }
 
-        // 3. Function to Load Layout
-        function loadLayout() {
-            let savedData = localStorage.getItem('study-hub-layout');
-            if (savedData) {
-                grid.load(JSON.parse(savedData));
+        // 3. Persistent Storage Logic
+        function saveFullLayout() {
+            let data = grid.save();
+            localStorage.setItem('user-study-grid', JSON.stringify(data));
+            alert("Layout Saved Locally!");
+        }
+
+        function loadSavedLayout() {
+            let saved = localStorage.getItem('user-study-grid');
+            if (saved) {
+                grid.load(JSON.parse(saved));
+            } else {
+                // Default tiles if nothing is saved
+                addNewTile();
             }
         }
 
-        // 4. Run Load on startup and Save whenever anything changes
-        loadLayout();
-        grid.on('change', saveLayout);
+        function clearLayout() {
+            localStorage.removeItem('user-study-grid');
+            location.reload();
+        }
+
+        // Initialize on load
+        loadSavedLayout();
+        grid.on('change', saveFullLayout); // Auto-save on every move
     </script>
 </body>
 </html>
+
