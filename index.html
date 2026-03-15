@@ -1,20 +1,95 @@
-<div class="settings-sidebar">
-    <h3>🎨 Design Hub</h3>
-    
-    <label>Tile Colors</label>
-    <input type="color" value="#ffffff" oninput="updateTileColors(this.value)">
-    
-    <label>Page Background</label>
-    <input type="color" value="#f4f7f6" oninput="updatePageBg(this.value)">
-    
-    <label>Sidebar Theme</label>
-    <select onchange="updateSidebarTheme(this.value)" style="width:100%; padding:8px;">
-        <option value="#2c3e50">Midnight Blue</option>
-        <option value="#1a1a1a">Dark Mode</option>
-        <option value="#ffffff">Light Mode</option>
-    </select>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Study Hub</title>
+    <!-- Gridstack & Styling -->
+    <link href="https://jsdelivr.net" rel="stylesheet"/>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-<div class="grid-stack">
-    <!-- Your study tiles go here -->
-</div>
+    <!-- SIDEBAR MENU (User Tools) -->
+    <div class="sidebar">
+        <h2>🛠️ Tools</h2>
+        <button class="btn" onclick="addNoteTile()">📝 Add Note</button>
+        <button class="btn" onclick="addEmbedTile()">🔗 Embed (Music/Video)</button>
+        
+        <hr>
+        <label>Tile Color</label>
+        <input type="color" id="tileColor" value="#ffffff" oninput="updateColors()">
+        
+        <label>Background</label>
+        <input type="color" id="bgColor" value="#f4f7f6" oninput="updateColors()">
+        
+        <button class="btn btn-danger" onclick="resetAll()" style="margin-top: 50px;">Reset All</button>
+    </div>
+
+    <!-- THE GRID (Where tiles live) -->
+    <div class="grid-stack"></div>
+
+    <!-- SCRIPTS -->
+    <script src="https://jsdelivr.net"></script>
+    <script>
+        // 1. Setup Grid
+        let grid = GridStack.init({ float: true, margin: 10, cellHeight: 70 });
+
+        // 2. Function to Add Note Tile
+        function addNoteTile(content = null) {
+            grid.addWidget({ w: 4, h: 4, content: `
+                <div class="grid-stack-item-content">
+                    <button class="delete-btn" onclick="grid.removeWidget(this.parentElement.parentElement)">×</button>
+                    <h3 contenteditable="true">Subject Name</h3>
+                    <div contenteditable="true" class="note-body">Type your homework or notes here...</div>
+                </div>` 
+            });
+        }
+
+        // 3. Function to Add Embed Tile (Spotify/YouTube/Widgets)
+        function addEmbedTile() {
+            let url = prompt("Paste your Spotify, YouTube, or Widget link:");
+            if (!url) return;
+            
+            // Auto-format links for embedding
+            let finalUrl = url.replace("watch?v=", "embed/").replace("://spotify.com", "://spotify.comembed/");
+
+            grid.addWidget({ w: 4, h: 6, content: `
+                <div class="grid-stack-item-content">
+                    <button class="delete-btn" onclick="grid.removeWidget(this.parentElement.parentElement)">×</button>
+                    <iframe src="${finalUrl}" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
+                </div>` 
+            });
+        }
+
+        // 4. Automatic Saving & Loading
+        function saveDashboard() {
+            const data = grid.save(false); 
+            localStorage.setItem('study-hub-layout', JSON.stringify(data));
+            localStorage.setItem('study-hub-bg', document.body.style.backgroundColor);
+        }
+
+        function loadDashboard() {
+            const saved = localStorage.getItem('study-hub-layout');
+            const bg = localStorage.getItem('study-hub-bg');
+            if (saved) grid.load(JSON.parse(saved));
+            if (bg) document.body.style.backgroundColor = bg;
+        }
+
+        function updateColors() {
+            const tileC = document.getElementById('tileColor').value;
+            const bgC = document.getElementById('bgColor').value;
+            document.body.style.backgroundColor = bgC;
+            document.querySelectorAll('.grid-stack-item-content').forEach(t => t.style.backgroundColor = tileC);
+            saveDashboard();
+        }
+
+        function resetAll() { if(confirm("Delete everything?")) { localStorage.clear(); location.reload(); } }
+
+        // Watch for changes to auto-save
+        grid.on('change', saveDashboard);
+        document.addEventListener('input', saveDashboard);
+        window.onload = loadDashboard;
+    </script>
+</body>
+</html>
